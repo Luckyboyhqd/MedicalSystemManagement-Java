@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>库存后台管理</title>
+    <link rel="stylesheet" href="layui/css/layui.css">
+    <link rel="stylesheet" href="" id="night-css">
+    <style>
+        .layui-layout-left .layui-nav-item a{
+            color: #009688;
+        }
+        .layui-layout-right .layui-nav-item a{
+            color: black;
+        }
+    </style>
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header" style="background-color: #FFFFFF;">
+        <div class="layui-logo" STYLE="background-color: #393D49;">库存管理系统后台</div>
+        <!-- 头部区域（可配合layui已有的水平导航） -->
+
+        <ul class="layui-nav layui-layout-left"style="padding:10px 0 0 0" >
+            <!--<span class="layui-breadcrumb" style="line-height:60px; padding-left: 20px;">-->
+                    <!--<a class="layui-btn layui-btn-sm layui-btn-primary" href=" javascript:void(0);" onclick="location.href='/admin.html'">-->
+                        <!--<i class="layui-icon" style="color: black">&#xe669;</i>-->
+                    <!--</a>-->
+            <!--</span>-->
+            <div class="layui-form-item layui-form" >
+                <label class="layui-form-label" style="color: black;">夜间模式</label>
+                <div class="layui-input-block">
+                    <input type="checkbox" lay-skin="switch" lay-filter="night" title="开关">
+                </div>
+            </div>
+        </ul>
+
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a href="javascript:;" id="nickname" onMouseOver="this.style.color='#000'"><img src="http://t.cn/RCzsdCq" class="layui-nav-img">
+                </a>
+                <!--<dl class="layui-nav-child">-->
+                    <!--<dd><a href="">基本资料</a></dd>-->
+                    <!--<dd><a href="">安全设置</a></dd>-->
+                <!--</dl>-->
+            </li>
+            <li class="layui-nav-item"><a href="/logout.manager" id="logout"onMouseOver="this.style.color='#000'">安全退出</a></li>
+            </ul>
+    </div>
+
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree" lay-filter="test">
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a class="" href="javascript:;">商品</a>
+                    <dl class="layui-nav-child">
+                        <dd id="11" name="DrugManage/drug1.html" style="display: none"><a href="javascript:;">商品信息</a></dd>
+                        <dd id="22" name="MedicineType/type.html" style="display: none"><a href="javascript:;">商品类别</a></dd>
+                        <dd id="33" name="DrugManage/drug.html" style="display: none"><a href="javascript:;">入库</a></dd>
+                        <dd id="44" name="BuyPage/buy.html" style="display: none"><a href="javascript:;">出库</a></dd>
+                        <dd id="55" name="SaleLog/sale.html" style="display: none"><a href="javascript:;">出库详情</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a class="" href="javascript:;">系统</a>
+                    <dl class="layui-nav-child">
+                        <dd id="66" name="/UserManage/user.html" style="display: none"><a href="javascript:;">用户管理</a></dd>
+                        <dd id="77" name="/UserManage/password.html" style="display: none"><a href="javascript:;">修改密码</a></dd>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body">
+        <!-- 内容主体区域 -->
+
+        <div class="layui-tab layui-tab-brief" lay-filter="tab-switch" lay-allowclose="true" style="margin: 0;">
+            <ul class="layui-tab-title">
+                <li class="layui-this" lay-id="00" style="min-width: 0;display: none;" id="home-tab">
+                    <i class="layui-icon layui-icon-home" id="home-icon"></i>
+                </li>
+            </ul>
+            <div class="layui-tab-content" style="height: inherit; padding: 0;">
+                <div class="layui-tab-item" id="home-iframe">
+                    <iframe src='home.html' width="100%" frameborder="0" scrolling="auto" onload="setWinHeight(this)" ></iframe>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="layui-footer">
+        <!-- 底部固定区域 -->
+        © 库存管理系统 - Just For Graduation
+    </div>
+
+</div>
+
+<script src="layui/layui.js" type="text/javascript"></script>
+<script>
+    //JavaScript代码区域
+    var element;
+    var $;
+    layui.use(['element','jquery','layer','form'],function(){
+        $ = layui.jquery;
+        element = layui.element;
+        var form = layui.form;
+
+
+        // //首页选项卡设置不可关闭
+        $('.layui-icon-home + .layui-tab-close').css('display','none');
+
+        //监听左侧菜单点击
+        element.on('nav(test)', function(elem){
+            addTab(elem[0].innerText, elem[0].parentNode.attributes[1].nodeValue, elem[0].parentNode.id);
+        });
+        //监听tab选项卡切换
+        element.on('tab(tab-switch)', function(data){
+            if(data.elem.context.attributes != undefined){
+                var id = data.elem.context.attributes[0].nodeValue;
+                layui.each($(".layui-nav-child"), function () {
+                    $(this).find("dd").removeClass("layui-this");
+                });
+                $("#"+id).attr("class","layui-this");
+            }
+        });
+
+        //获取当前用户昵称
+        $(document).ready(function () {
+            // for(var i = 0 ; i<6; ++i) {
+            //     $("#"+i+i).hide();
+            // }
+            $.ajax("/getUser.manager",{
+                type:'post',
+                success: function(data, status, response) {
+                    // data = JSON.parse(data); //如果后台没有设置数据格式为json，可以转成json对象
+                    $('#nickname').html('<img src="http://t.cn/RCzsdCq" class="layui-nav-img">欢迎你，'+data.nickname);
+                },
+                error: function(data, status, response) {
+                }
+            });
+            $.ajax("/role.manager",{
+                type: 'post',
+                success:function (data) {
+                    console.log(typeof  data);
+                    if(data.role == 2) {
+                        $("#44").show();
+                        $("#77").show();
+                        $("#44").children().click();
+                    }
+                    if(data.role == 1) {
+
+                        for(var i = 1 ; i<=7; ++i) {
+                            $("#"+i+i).show();
+                            $("#home-iframe").addClass('layui-show');
+                            $("#home-tab").show();
+                        }
+                    }
+                }
+            });
+        })
+        //监听窗口大小变化改变iframe大小
+        $(window).resize(function() {
+            $('iframe').each(function () {
+                $(this).height($('.layui-body').height()-45);
+            })
+        });
+        
+        //退出登录
+        // $('#logout').click(function (e) {
+        //     $.ajax({
+        //         type: 'post',
+        //         url: "/logout.manager",
+        //         success: function (data) {
+        //            location.href = '/';
+        //         },
+        //         error: function(){
+        //            location.href = '/';
+        //         }
+        //     })
+        // })
+
+
+        //夜晚开关
+        //监听指定开关
+        form.on('switch(night)', function(data){
+            if(this.checked ==true){
+                document.documentElement.style.filter="brightness(80%)";
+                $('#night-css').attr('href','css/night1.css');
+                layer.tips('温馨提示：夜间模式还存在样式问题，敬请期待作者修复', data.othis)
+            }else{
+                document.documentElement.style.filter="invert(0)";
+                $('#night-css').attr('href','');
+            }
+        });
+
+
+    });
+    /**
+     * 新增tab选项卡，如果已经存在则打开已经存在的，不存在则新增
+     * @param tabTitle 选项卡标题名称
+     * @param tabUrl 选项卡链接的页面URL
+     * @param tabId 选项卡id
+     */
+    function addTab(tabTitle,tabUrl,tabId){
+        if ($(".layui-tab-title li[lay-id=" + tabId + "]").length > 0) {
+            element.tabChange('tab-switch', tabId);
+        }else{
+            element.tabAdd('tab-switch', {
+                title: tabTitle
+                // ,content: '<iframe src='+tabUrl+' width="100%" style="min-height: 450px" frameborder="0" scrolling="auto" onload="setIframeHeight(this)"></iframe>' // 选项卡内容，支持传入html
+                ,content: '<iframe src='+tabUrl+' width="100%"  frameborder="0" scrolling="auto" onload="setWinHeight(this)"></iframe>' // 选项卡内容，支持传入html
+                ,id: tabId //选项卡标题的lay-id属性值
+            });
+            element.tabChange('tab-switch', tabId); //切换到新增的tab上
+        }
+    }
+    /**
+     * ifrme自适应页面高度
+     * @param iframe
+     */
+    function setWinHeight(obj) {
+        var bodyHeight = document.getElementsByClassName("layui-body")[0].clientHeight;
+        var myObject = obj;
+        //减去footer，tab高度
+        myObject.height = bodyHeight - 45;
+    }
+</script>
+</body>
+</html>

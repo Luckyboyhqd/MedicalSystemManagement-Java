@@ -1,0 +1,31 @@
+body{
+    overflow: hidden;
+}
+.header {
+    background: rgba(0,0,0,0.7);
+    position: fixed;
+    width: 100%;
+}
+.admin-header{
+    background: #F0F0F0;
+}
+.admin-logo{
+    background-color:#23262E;
+}
+.layui-nav{
+
+    background: rgba(0,0,0,0);
+}
+.box{
+    margin-top: 150px;
+    margin-left: 300px;
+    width: 355px;
+    height: 355px;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position:relative;
+    z-index: 999;
+}

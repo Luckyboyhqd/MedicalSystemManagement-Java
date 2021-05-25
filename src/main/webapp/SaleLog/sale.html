@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+<form class="layui-form layui-form-pane" action="" >
+    <div class="layui-form-item" style="margin:0 auto;width:300px;">
+        <div class="layui-input-inline">
+            <input type="text" id="search" name="username" placeholder="请输入查询关键字"
+                   autocomplete="off" class="layui-input" title="出库记录编号、库存编号、购买人ID">
+        </div>
+        <a id='sbtn'class="layui-btn" lay-submit="" lay-filter="demo1">查询</a>
+    </div>
+</form>
+<div id="btn-event" class="layui-input-inline">
+    <!--左侧添加、删除按钮-->
+    <button class="layui-btn layui-btn-disabled">删除</button>
+    <button class="layui-btn layui-btn-disabled">添加</button>
+</div>
+
+<table id="sale"></table>
+
+<script src="../layui/layui.js" charset="utf-8"></script>
+<!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
+<script>
+    function table_render() {
+        layui.use(['table', 'jquery'], function () {
+            var table = layui.table;
+            var $ = layui.jquery;
+            layer.load(2);
+            setTimeout(function(){
+                table.render({
+                    elem: '#sale'
+                    , url: "/list.salelog"
+                    , page: {layout: ['prev', 'page', 'next', 'count', 'skip']}
+                    // , cellMinWidth: 80 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+                    , cols: [[
+                        {type: 'checkbox', fixed: 'left'}
+                        ,{field: 'medicine_Log_Id', title: '出库记录编号', sort: true}
+                        , {field: 'sale_Date', title: '出库日期', sort: true}
+                        , {field: 'medicine_GB', title: '库存编号', sort: true}
+                        , {field: 'sale_Number', title: '出库数量'}
+                        , {field: 'sale_Price', title: '出库价格'} //minWidth：局部定义当前单元格的最小宽度，layui 2.2.1 新增
+                        , {field: 'user_Account', title: '出库人'}
+                    ]]
+                    ,height: 500
+                });
+                layer.closeAll('loading');
+            });
+       });
+    }
+
+    table_render();
+    layui.use(['form', 'jquery','table'], function () {
+        var form = layui.form;
+        var $ = layui.jquery;
+        var table = layui.table;
+        form.on('submit(demo1)', function (data) {
+            table.reload('sale', {
+                url: '/list.salelog'
+                , where: {key: $("#search").val().trim()}
+                , page: {
+                    curr: 1 //重新从第 1 页开始
+                }
+            });
+            return false;
+        });
+    })
+
+
+</script>
+</body>
+</html>

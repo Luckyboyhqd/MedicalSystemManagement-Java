@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>table</title>
+    <link rel="stylesheet" href="layui/css/layui.css">
+    <!-- 引入 ECharts 文件 -->
+    <script src="js/echarts.common.min.js"></script>
+</head>
+<body>
+<div style="padding: 10px;">
+    <div>
+        <p> 主页</p>
+        <img src="img/med1.png" style="width: 1000px; height: 550px">
+    </div>
+    <!--<div class="layui-row">-->
+        <!--<div class="layui-col-xs8">-->
+            <!--<div id="heh" style="height: 400px;padding: 10px"></div>-->
+
+
+        <!--</div>-->
+        <!--<div class="layui-col-xs4">-->
+            <!--<div class="layui-card">-->
+                <!--<div class="layui-card-header"><span style="font-weight: bold">药品库存 (以1000为总量)</span></div>-->
+                <!--<div class="layui-card-body">-->
+                    <!--<h4>清热解毒类</h4>-->
+                    <!--<div class="layui-progress layui-progress-big" lay-showpercent="true" lay-filter="bar1">-->
+                        <!--<div class="layui-progress-bar" lay-percent="0%"></div>-->
+                    <!--</div>-->
+                    <!--<h4>抗菌消炎类</h4>-->
+                    <!--<div class="layui-progress layui-progress-big" lay-showpercent="true" lay-filter="bar2">-->
+                        <!--<div class="layui-progress-bar layui-bg-red" lay-percent="0%"></div>-->
+                    <!--</div>-->
+                    <!--<h4>止咳平喘类</h4>-->
+                    <!--<div class="layui-progress layui-progress-big" lay-showpercent="true" lay-filter="bar3">-->
+                        <!--<div class="layui-progress-bar" lay-percent="0%"></div>-->
+                    <!--</div>-->
+                    <!--<h4>胃肠道类</h4>-->
+                    <!--<div class="layui-progress layui-progress-big" lay-showpercent="true" lay-filter="bar4">-->
+                        <!--<div class="layui-progress-bar layui-bg-red" lay-percent="0%"></div>-->
+                    <!--</div>-->
+                    <!--<h4>维生素类</h4>-->
+                    <!--<div class="layui-progress layui-progress-big" lay-showpercent="true" lay-filter="bar5">-->
+                        <!--<div class="layui-progress-bar" lay-percent="0%"></div>-->
+                    <!--</div>-->
+                    <!--<h4>心脑血管类</h4>-->
+                    <!--<div class="layui-progress layui-progress-big" lay-showpercent="true" lay-filter="bar6">-->
+                        <!--<div class="layui-progress-bar" lay-percent="0%"></div>-->
+                    <!--</div>-->
+                    <!--<h4>五官外用类</h4>-->
+                    <!--<div class="layui-progress layui-progress-big"  lay-showpercent="true"lay-filter="bar7">-->
+                        <!--<div class="layui-progress-bar" lay-percent="0%"></div>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+    <!--<div class="layui-row">-->
+        <!--<div class="layui-col-xs8">-->
+            <!--<div id="hehe" style="height:500px; padding: 10px"></div>-->
+
+        <!--</div>-->
+        <!--<div class="layui-col-xs4">-->
+            <!--<div class="layui-card">-->
+                <!--<div class="layui-card-body">-->
+                    <!--<div class="layui-tab layui-tab-brief" lay-filter="tabhot">-->
+                        <!--<ul class="layui-tab-title">-->
+                            <!--<li class="layui-this">热门药品</li>-->
+                            <!--<li>用户排行</li>-->
+                        <!--</ul>-->
+                        <!--<div class="layui-tab-content">-->
+                            <!--<div class="layui-tab-item layui-show">-->
+                                <!--<table id="med" lay-filter="med-filter"></table>-->
+                            <!--</div>-->
+                            <!--<div class="layui-tab-item">-->
+                                <!--<table id="user" lay-filter="user-filter"></table>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+</div>
+<script src="layui/layui.js"></script>
+<!--<script>-->
+    <!--layui.use(['table','layer','form','element','jquery'], function(){-->
+        <!--var table = layui.table;-->
+        <!--var $ = layui.jquery;-->
+        <!--var table_curr = 1;-->
+        <!--var element = layui.element;-->
+        <!--layer.load();-->
+
+        <!--element.on('tab(tabhot)', function(data){-->
+            <!--// console.log(this); //当前Tab标题所在的原始DOM元素-->
+            <!--// console.log(data.index); //得到当前Tab的所在下标-->
+            <!--// console.log(data.elem); //得到当前的Tab大容器-->
+        <!--});-->
+
+        <!--/**-->
+         <!--* 表格初始化渲染-->
+         <!--*-->
+         <!--*/-->
+        <!--setTimeout(function(){-->
+            <!--layer.closeAll('loading');-->
+            <!--table.render({-->
+                <!--elem: '#med'-->
+                <!--,method:'post'-->
+                <!--,url: '/hotMed.salelog' //数据接口-->
+                <!--,request: {-->
+                    <!--pageName: 'curr' //页码的参数名称，默认：page-->
+                    <!--,limitName: 'limit' //每页数据量的参数名，默认：limit-->
+                <!--}-->
+                <!--,cols: [[ //表头-->
+                    <!--{field: 'medicine_Name', title: '药品名', sort: true}-->
+                    <!--,{field: 'sale_Count', title: '销售总量'}-->
+                    <!--,{field: 'human_Count', title: '购买人数'}-->
+                <!--]],-->
+                <!--page : true,-->
+                <!--limit : 8, //默认10条数据一页-->
+                <!--height : 400,-->
+                <!--done: function(res, curr, count){-->
+                    <!--table_curr = curr;-->
+                <!--}-->
+            <!--});-->
+            <!--table.render({-->
+            <!--elem: '#user'-->
+            <!--,method:'post'-->
+            <!--,url: '/userRank.salelog' //数据接口-->
+            <!--,request: {-->
+                <!--pageName: 'curr' //页码的参数名称，默认：page-->
+                <!--,limitName: 'limit' //每页数据量的参数名，默认：limit-->
+            <!--}-->
+            <!--,cols: [[ //表头-->
+                <!--{field: 'user_Name', title: '用户', sort: true}-->
+                <!--,{field: 'monetary', title: '消费总额'}-->
+                <!--,{field: 'purchase_Times', title: '购买次数'}-->
+            <!--]],-->
+            <!--page : true,-->
+            <!--limit : 8,-->
+            <!--height : 400,-->
+            <!--done: function(res, curr, count){-->
+                <!--table_curr = curr;-->
+            <!--}-->
+        <!--});-->
+
+
+            <!--$.ajax({-->
+                <!--url:'stock.salelog',-->
+                <!--type: 'post',-->
+                <!--success: function (data) {-->
+                    <!--for (var i = 0; i < data.data.length; i++) {-->
+                        <!--element.progress('bar'+(i+1), (data.data[i].stockNumber / 2500 * 100)+'%');-->
+                    <!--}-->
+                <!--}-->
+            <!--});-->
+        <!--}, 1000);-->
+
+
+        <!--var myChart2 = echarts.init(document.getElementById('hehe'));-->
+        <!--$.ajax({-->
+            <!--type: 'post',-->
+            <!--async: true,-->
+            <!--url: '/medType.salelog',-->
+            <!--dataType: "json",-->
+            <!--success: function (result) {-->
+
+                <!--if (result) {-->
+                    <!--var names =[];-->
+                    <!--var otherValue = result.total;-->
+                    <!--$.each(result.data,function(index,value){ //此处我返回的是list<String,map<String,String>>循环map-->
+                        <!--names.push(value.name);-->
+                        <!--otherValue = otherValue - value.value;-->
+                    <!--});-->
+                    <!--names.push('其他');-->
+                    <!--var other ={};-->
+                    <!--other.name = "其他";-->
+                    <!--other.value = otherValue;-->
+                    <!--result.data.push(other);-->
+                    <!--myChart2.setOption({-->
+                        <!--title : {-->
+                            <!--text: '药品销售占比',-->
+                            <!--subtext: '类别',-->
+                            <!--x:'center'-->
+                        <!--},-->
+                        <!--tooltip : {-->
+                            <!--trigger: 'item',-->
+                            <!--formatter: "{a} <br/>{b} : {c} ({d}%)"-->
+                        <!--},-->
+                        <!--legend: {-->
+                            <!--orient: 'vertical',-->
+                            <!--left: 'left',-->
+                            <!--data: names-->
+                        <!--},-->
+                        <!--series : [-->
+                            <!--{-->
+                                <!--name: '访问来源',-->
+                                <!--type: 'pie',-->
+                                <!--radius : '55%',-->
+                                <!--center: ['50%', '60%'],-->
+                                <!--data: result.data,-->
+                                <!--itemStyle: {-->
+                                    <!--emphasis: {-->
+                                        <!--shadowBlur: 10,-->
+                                        <!--shadowOffsetX: 0,-->
+                                        <!--shadowColor: 'rgba(0, 0, 0, 0.5)'-->
+                                    <!--}-->
+                                <!--}-->
+                            <!--}-->
+                        <!--]-->
+                    <!--});-->
+
+                    <!--window.addEventListener("resize",function(){-->
+                        <!--myChart2.resize();-->
+                    <!--});-->
+                <!--}-->
+            <!--}-->
+        <!--})-->
+
+        <!--// 基于准备好的dom,初始化echarts实例-->
+
+        <!--var myChart = echarts.init(document.getElementById('heh'));-->
+        <!--$.ajax({-->
+            <!--url:'daySale.salelog',-->
+            <!--type: 'post',-->
+            <!--success: function (data) {-->
+                <!--// 指定图表的配置项和数据-->
+                <!--var option = {-->
+                    <!--title: {-->
+                        <!--text: '一周销售数据',-->
+                        <!--x: 'center'-->
+                    <!--},-->
+                    <!--tooltip : {-->
+                        <!--trigger: 'axis',-->
+                        <!--axisPointer: {-->
+                            <!--type: 'cross',-->
+                            <!--label: {-->
+                                <!--backgroundColor: '#6a7985'-->
+                            <!--}-->
+                        <!--}-->
+                    <!--},-->
+                    <!--legend: {-->
+                        <!--data:['总销售额','销售数量'],-->
+                        <!--x:'right'-->
+                    <!--},-->
+                    <!--grid: {-->
+                        <!--left: '3%',-->
+                        <!--right: '4%',-->
+                        <!--bottom: '3%',-->
+                        <!--containLabel: true-->
+                    <!--},-->
+                    <!--xAxis : [-->
+                        <!--{-->
+                            <!--type : 'category',-->
+                            <!--boundaryGap : false,-->
+                            <!--data : data.data.dayDate-->
+                        <!--}-->
+                    <!--],-->
+                    <!--yAxis : [-->
+                        <!--{-->
+                            <!--type : 'value'-->
+                        <!--}-->
+                    <!--],-->
+                    <!--series : [-->
+                        <!--{-->
+                            <!--// color: 'crimson',-->
+                            <!--color: '#FF5722',-->
+                            <!--name:'总销售额',-->
+                            <!--type:'line',-->
+                            <!--stack: '总量',-->
+                            <!--areaStyle: {normal: {}},-->
+                            <!--data:data.data.daySale,-->
+                            <!--smooth: true-->
+                        <!--},-->
+                        <!--{-->
+                            <!--color: '#5FB878',-->
+                            <!--// color: 'green',-->
+                            <!--name:'销售数量',-->
+                            <!--type:'line',-->
+                            <!--stack: '总量',-->
+                            <!--areaStyle: {normal: {}},-->
+                            <!--label: {-->
+                                <!--normal: {-->
+                                    <!--show: true,-->
+                                    <!--position: 'top'-->
+                                <!--}-->
+                            <!--},-->
+                            <!--data:data.data.dayNumber,-->
+                            <!--smooth: true-->
+                        <!--}-->
+                    <!--],-->
+
+                <!--};-->
+
+                <!--// 使用刚指定的配置项和数据显示图表。-->
+                <!--myChart.setOption(option);-->
+                <!--window.addEventListener("resize",function(){-->
+                    <!--myChart.resize();-->
+                <!--});-->
+            <!--}-->
+        <!--});-->
+
+
+
+    <!--});-->
+
+
+<!--</script>-->
+</body>
+</html>

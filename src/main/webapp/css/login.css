@@ -1,0 +1,31 @@
+body {
+    background-size:100% 100%;
+    /*background: url('') no-repeat fixed center;*/
+    overflow: hidden;
+}
+.modal_bg {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    /*background-color: #000;*/
+    /*filter:alpha(opacity:50); !*针对IE浏览器*!*/
+    /*opacity:0.5;*/
+    /*-moz-opacity:0.5;!*支持老版本的Mozilla浏览器*!*/
+    /*-khtml-opacity: 0.5;!*这是旧版本的Safari（1.×）*!*/
+    align-content: center;
+}
+.box {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: -webkit-flex; /* Safari */
+    display: flex;
+    align-items:center;
+}
+.login-box {
+    background: #FFF;
+    width: 315px;
+    margin:auto;
+    padding: 20px;
+    text-align: center;
+}

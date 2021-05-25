@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+    <title>库存管理系统</title>
+    <link rel="stylesheet" href="layui/css/layui.css">
+    <link rel="stylesheet" href="css/supersized.css">
+    <link rel="stylesheet" href="css/aos.css"/>
+    <link rel="stylesheet" href="css/index.css"/>
+</head>
+<body>
+
+<!--标题栏部分-->
+<div class="layui-header header header-doc">
+    <div class="layui-container">
+        <div class="layui-row">
+            <!--标题栏左侧-->
+            <div class="layui-col-md9 layui-col-sm9 layui-col-xs9">
+                <ul class="layui-nav" lay-filter="">
+                    <li class="layui-nav-item layui-this"><a href="">库存管理系统</a></li>
+                </ul>
+            </div>
+            <!--标题栏右侧-->
+            <!--<div class="layui-col-md3 layui-col-sm3 layui-col-xs3">-->
+                <!--<ul class="layui-nav" lay-filter="" style="float: right">-->
+                    <!--<li class="layui-nav-item"><a href="">登录</a></li>-->
+                <!--</ul>-->
+            <!--</div>-->
+        </div>
+    </div>
+</div>
+
+<!--左侧登陆框-->
+<div class="layui-col-md5 layui-col-xs5 ">
+    <form class="layui-form-pane layui-form" action="admin.html" method="post">
+        <div class="box">
+            <h2 style="padding-bottom:20px;">登录窗口</h2>
+            <div class="layui-form-item">
+                <label class="layui-form-label">用户名</label>
+                <div class="layui-input-block">
+                    <input type="text" name="username" required="" lay-verify="required" placeholder="请输入用户名"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">密码</label>
+                <div class="layui-input-block">
+                    <input type="password" name="password" required="" lay-verify="required" placeholder="请输入密码"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <a class="layui-btn" lay-submit lay-filter="login">登 录</a>
+            </div>
+            <hr class="layui-bg-grey" width="80%">
+
+        </div>
+    </form>
+</div>
+
+<!--右侧图片动画-->
+<div class="layui-col-md7 layui-col-xs7 ">
+    <div class="aos-item" data-aos="slide-left">
+        <img src="img/med1.png" width="900px" height="700px" style="margin-top: 50px;  z-index: 1">
+    </div>
+</div>
+
+<!--<div class="layui-footer">-->
+<!--&lt;!&ndash; 底部固定区域 &ndash;&gt;-->
+<!--© layui.com - 底部固定区域-->
+<!--</div>-->
+</div>
+
+<script type="text/javascript" src="layui/layui.js"></script>
+<script src="js/aos.js"></script>
+<script type="text/javascript">
+    layui.use(['form','layer','jquery'], function () {
+        // 操作对象
+        var form = layui.form;
+        var $ = layui.jquery;
+
+        form.on('submit(login)', function(data){
+            $.ajax("/isLogin.manager",{
+                data: $(data.form).serialize(),
+                type:'post',
+                success: function(data, status, response) {
+                    data = JSON.parse(data); //如果后台没有设置数据格式为json，可以转成json对象
+                    if (data.isLogin == 1){
+                        location.href = "/admin.html";
+                    }else if(data.isLogin == -1){
+                        layer.msg('登录名或密码错误');
+                    }
+                },
+                error: function(data, status, response) {
+                }
+            })
+
+            //return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        });
+
+    });
+    AOS.init({
+        easing: 'ease-out-back',
+        duration: 2000
+
+    });
+
+</script>
+
+<script src="js/jquery-1.8.2.min.js"></script>
+<script src="js/supersized.3.2.7.min.js"></script>
+<script src="js/supersized-init.js"></script>
+</body>
+</html>

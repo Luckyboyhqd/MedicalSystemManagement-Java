@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>table</title>
+    <link rel="stylesheet" href="../layui/css/layui.css">
+    <link rel="stylesheet" href="../css/admin.css">
+
+</head>
+<body>
+<div>
+<form class="layui-form layui-form-pane" action="" >
+    <div class="layui-form-item" style="margin:0 auto;width:300px;">
+        <div class="layui-input-inline">
+            <input type="text" name="condition" lay-verify="pass" placeholder="搜索用户名" autocomplete="off" class="layui-input">
+        </div>
+        <a class="layui-btn" lay-submit="" lay-filter="search">查询</a>
+    </div>
+</form>
+
+<div id="btn-event" class="layui-input-inline">
+    <button data-type="batchdel" class="layui-btn">删除</button>
+    <button data-type="add" class="layui-btn">添加</button>
+    <script type="text/html" id="add-form-html">
+        <form class="layui-form" action="" id="add-form" lay-filter="save-form">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">用户名</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="username" lay-verify="required" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">密码</label>
+                    <div class="layui-input-inline">
+                        <input type="password" name="password" lay-verify="required" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">昵称</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="nickname" lay-verify="required" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">手机号</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="mobile" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">类型</label>
+                    <div class="layui-input-inline">
+                        <select name="type" class="layui-form-select" lay-verify="required">
+                            <option value="">请选择用户类别</option>
+                            <option value="1">管理员</option>
+                            <option value="2">普通用户</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </script>
+</div>
+
+
+<table id="demo" lay-filter="test"></table>
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="resetPass">重置密码</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+</div>
+<script src="../layui/layui.js"></script>
+<script>
+    layui.use(['table','layer','form'], function(){
+        var table = layui.table;
+        var layer = layui.layer;
+        var $ = layui.jquery;
+        var form = layui.form;
+        var table_curr = 1;
+        layer.load(2);
+        /**
+         * 表格初始化渲染
+         *
+         */
+        setTimeout(function(){
+            layer.closeAll('loading');
+            table.render({
+                elem: '#demo'
+                ,method:'post'
+                ,url: '/list.manager' //数据接口
+                ,request: {
+                    pageName: 'curr' //页码的参数名称，默认：page
+                    ,limitName: 'limit' //每页数据量的参数名，默认：limit
+                }
+                ,height: 500
+                ,cols: [[ //表头
+                    {type:'checkbox',fixed: 'left'}
+                    ,{field: 'id', title: '用户ID',sort: true}
+                    ,{field: 'username', title: '用户名'}
+                    ,{field: 'password', title: '密码'}
+                    ,{field: 'nickname', title: '用户昵称'}
+                    ,{field: 'mobile', title: '联系方式'}
+                    ,{field: '_type', title: '用户类型'}
+                    ,{fixed: 'right',  title: '操作', align:'center', toolbar: '#barDemo'}
+                ]],
+                // id : 'testReload',
+                page : true,
+                limit : 10, //默认10条数据一页
+                // limits : [ 10, 20, 30 ],
+                done: function(res, curr, count){
+                    //如果是异步请求数据方式，res即为你接口返回的信息。
+                    //如果是直接赋值的方式，res即为：{data: [], count: 99} data为当前页数据、count为数据总长度
+                    // console.log(res);
+                    //得到当前页码
+                    //得到数据总量
+                    // console.log(count);
+                    // console.log(curr);
+                    table_curr = curr;
+                }
+            });
+        }, 500);
+
+        /**
+         * 表格重载方法封装
+         * where: 查询条件
+         * curr: 重载页数，(可以用全局对象 table_curr)
+         *
+         */
+        function tableReload(where,curr){
+            table.reload('demo', {
+                url: '/list.manager'
+                ,where: where
+                ,page: {
+                    curr: curr
+                }
+            });
+        }
+
+        /**
+         * 监听table工具条:
+         * 重置密码
+         * 删除
+         * 编辑
+         *
+         */
+        table.on('tool(test)', function(obj){ //注：tool是工具条事件名，test是table原始容器的属性 lay-filter="对应的值"
+            var data = obj.data; //获得当前行数据
+            var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+            var tr = obj.tr; //获得当前行 tr 的DOM对象
+
+            if(layEvent === 'resetPass'){ //查看
+                //重置密码
+                layer.confirm('真的要重置该用户密码么', function(index){
+                    layer.close(index);
+                    //向服务端发送重置指令
+                    $.ajax("/reset.manager",{
+                        type: 'post',
+                        data: {
+                            id: data.id
+                        },
+                        success: function (data) {
+                            // console.info(data)
+                            layer.msg('已重置');
+                            tableReload({},table_curr);
+                        },
+                        error:function (XMLHttpRequest, textStatus, errorThrown) {
+                            layer.msg('重置失败');
+                        }
+                    })
+                });
+
+            } else if(layEvent === 'del'){ //删除
+                layer.confirm('真的删除该用户么', function(index){
+                    layer.close(index);
+                    //向服务端发送删除指令
+                    $.ajax("/remove.manager",{
+                        type: 'post',
+                        data: {
+                            id: data.id
+                        },
+                        success: function (data) {
+                            console.info(data)
+                            obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+                            layer.msg('已删除');
+                        },
+                        error:function (XMLHttpRequest, textStatus, errorThrown) {
+                            layer.msg('删除失败');
+                        }
+                    })
+
+                });
+            } else if(layEvent === 'edit'){ //编辑
+                //编辑
+                layer.prompt({
+                    title: '编辑用户',
+                    closeBtn: 1,
+                    shadeClose: true,
+                    content: $('#add-form-html').html(),
+                    btn: ['确定', '取消'],
+                    success: function(layero, index){
+                        //给表单赋初始值
+                        form.val("save-form", data)
+                        // console.log(layero, index);
+                    },
+                    yes: function(index, layero){
+                        //按钮【按钮一】的回调
+                        var formElem = layero.find('form');
+                        if(!formElem.find('i[lay-submit]').length>0){
+                            $('#add-form').append('<input name="id" class="layui-hide" type="hidden" value="'+data.id+'">' );
+                            $('#add-form').append('<i class="layui-btn layui-hide" lay-submit lay-filter="updateUser"></i>');
+                        }
+                        formElem.find('i[lay-submit]').click();
+                    }
+                });
+            }
+        });
+
+        /**
+         * 添加用户事件
+         *
+         */
+        form.on('submit(addUser)', function(data) {
+            console.info('aaaa');
+            $.ajax("/add.manager", {
+                type: 'post',
+                data: {
+                    data:JSON.stringify(data.field)
+                },
+                // contentType: 'application/json',
+                success: function (data) {
+                    // console.info(data);
+                    if (data.state == 1) {
+                        layer.closeAll();
+                        layer.msg('新增成功');
+                        tableReload({},table_curr);
+                    } else if(data.state == -1){
+                        layer.msg(data.msg);
+                    }
+                    form.render();
+                },
+                error:function (XMLHttpRequest, textStatus, errorThrown) {
+                    layer.msg('新增失败');
+                }
+            })
+        });
+
+        /**
+         * 编辑用户事件
+         *
+         */
+        form.on('submit(updateUser)', function(data) {
+            $.ajax("/update.manager", {
+                type: 'post',
+                data: {
+                    data: JSON.stringify(data.field)
+                },
+                // contentType: 'application/json',
+                success: function (data) {
+                    // console.info(data);
+                    if (data.state == 1) {
+                        layer.closeAll();
+                        layer.msg('编辑成功');
+                        //表格重载
+                        tableReload({},table_curr);
+                    } else if(data.state == -1){
+                        layer.msg(data.msg);
+                    }
+                },
+                error:function (XMLHttpRequest, textStatus, errorThrown) {
+                    layer.msg('编辑失败');
+                }
+            })
+        });
+
+        /**
+         * 搜索表单事件
+         *
+         */
+        form.on('submit(search)', function(data) {
+
+            tableReload({condition:data.field.condition},1)
+
+        });
+
+        /**
+         * 添加和批量删除按钮事件
+         *
+         */
+        $('#btn-event .layui-btn').on('click', function(){
+            var othis = $(this), type = othis.data('type');
+            active[type] ? active[type].call(this, othis) : '';
+        });
+        var active = {
+            add:function () {
+
+                layer.prompt({
+                    title: '添加用户',
+                    // closeBtn: 1,
+                    shadeClose: true,
+                    content: $('#add-form-html').html(),
+                    btn: ['确定', '取消'],
+                    yes: function(index, layero){
+                        //按钮【按钮一】的回调
+                        var formElem = layero.find('form');
+                        if(!formElem.find('i[lay-submit]').length>0){
+                            $('#add-form').append('<i class="layui-btn layui-hide" lay-submit lay-filter="addUser"></i>');
+                        }
+                        formElem.find('i[lay-submit]').click();
+                    }
+                });
+
+                form.render();
+            },
+            batchdel: function () {
+                var checkStatus = table.checkStatus('demo')
+                    ,data = checkStatus.data;
+                // layer.alert(JSON.stringify(data[0]));
+                layer.confirm('删除所有勾选用户么', function(index){
+                    layer.close(index);
+                    //向服务端发送删除指令
+                    for(var i=0; i<data.length;i++){
+                        $.ajax("/remove.manager",{
+                            type: 'post',
+                            data: {
+                                id: data[i].id
+                            },
+                            success: function (data) {
+                                // console.info(data);
+                                tableReload({},table_curr);
+                            },
+                            error:function (XMLHttpRequest, textStatus, errorThrown) {
+                                layer.msg('删除用户id：'+obj.id+'失败');
+                            }
+                        })
+                    }
+                });
+            }
+        }
+
+    });
+</script>
+
+</body>
+</html>

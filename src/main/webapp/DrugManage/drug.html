@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>table</title>
+    <link rel="stylesheet" href="../layui/css/layui.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <style>
+        body {
+            padding: 10px;
+        }
+
+        .layui-form-select dl {
+            max-height: 88px;
+        }
+    </style>
+</head>
+<body>
+<!--查询框部分-->
+<form class="layui-form layui-form-pane" action="">
+    <div class="layui-form-item" style="margin:0 auto;width:300px;">
+        <div class="layui-input-inline">
+            <!--查询输入框-->
+            <input type="text" name="condition" lay-verify="drugCondition" placeholder="请输入商品名称" autocomplete="off"
+                   class="layui-input">
+        </div>
+        <!--查询按钮-->
+        <a class="layui-btn" lay-submit="" lay-filter="drugSearch">查询</a>
+    </div>
+</form>
+
+<div id="btn-event" class="layui-input-inline">
+    <!--左侧添加、删除按钮-->
+    <button data-type="batchdel" class="layui-btn">删除商品</button>
+    <button data-type="add" class="layui-btn">入库商品</button>
+</div>
+
+<!--商品的表格-->
+<div>
+    <table id="drug" lay-filter="drugTable"></table>
+</div>
+<!--添加数据的模板-->
+<script type="text/html" id="add-form-html">
+    <form class="layui-form layui-form-pane" action="" id="add-form" style="padding-left: 80px;padding-top: 30px;">
+        <!--第一行 编号和名字-->
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">商品编号</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="medicineGB" lay-verify="required" autocomplete="off" class="layui-input"
+                           value="{{d.medicineGB || '' }}">
+                    <input type="hidden" name="medicineId" value="{{d.medicineId || '' }}">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">商品名字</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="medicineName" lay-verify="required|mName" autocomplete="off" class="layui-input"
+                           value="{{d.medicineName || '' }}">
+                </div>
+            </div>
+        </div>
+        <!--第二行 单价和数量-->
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">商品单价</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="medicinePrice" lay-verify="required|number|numberTwo" autocomplete="off"
+                           class="layui-input" value="{{d.medicinePrice|| '' }} "/>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">商品数量</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="medicineStockNumber" lay-verify="required|number|numberTwo" autocomplete="off"
+                           class="layui-input" value="{{d.medicineStockNumber|| '' }}">
+                </div>
+            </div>
+        </div>
+        <!--第三行 生产日期和商品类别-->
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">生产日期</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="medicinePD" lay-verify="required|date" autocomplete="off"
+                           class="layui-input"
+                           id="dateChoose" value="{{d.medicinePD|| '' }}"/>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-inline">
+                    <label class="layui-form-label">商品类别</label>
+                    <div class="layui-input-inline" style="overflow: visible">
+                        <select name="type" class="layui-form-select" lay-verify="required">
+                            <option value="">请选择商品类别</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--第四行 商品厂商-->
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">商品厂商</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="medicineFirm" lay-verify="required|mName" autocomplete="off" class="layui-input"
+                           value="{{d.medicineFirm|| '' }}">
+                </div>
+            </div>
+        </div>
+    </form>
+</script>
+
+<!--商品表格的操作模板-->
+<script type="text/html" id="barDrug">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">修改</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<!--页面脚本-->
+<script src="../layui/layui.js"></script>
+<script>
+    layui.use(['table', 'layer', 'form', 'laydate'], function () {
+        var table = layui.table;
+        var layer = layui.layer;
+        var form = layui.form;
+        var laydate = layui.laydate;
+        var table_curr = 1;
+        var $ = layui.jquery;
+        var nowIndex;
+        layer.load(2);
+
+        /**
+         * 表格初始化渲染
+         */
+        setTimeout(function () {
+            table.render({
+                elem: '#drug'
+                , method: 'post'
+                , url: '/list.drug' //数据接口
+                , request: {
+                    pageName: 'curr'
+                }
+                , cols: [[ //表头
+                    {type: 'checkbox', fixed: 'left'}
+                    , {field: 'medicineId', align: 'center', title: '商品ID', sort: true}
+                    , {field: 'medicineGB', align: 'center', title: '商品编号'}
+                    , {field: 'medicineName', align: 'center', title: '商品名字'}
+                    , {field: 'medicinePrice', align: 'center', title: '商品单价'}
+                    , {field: 'medicineStockNumber', align: 'center', title: '商品商品'}
+                    , {field: 'medicinePD', align: 'center', title: '商品生产日期'}
+                    , {field: 'medicineFirm', align: 'center', title: '商品厂商'}
+                    , {field: 'typeName', align: 'center', title: '商品类别'}
+                    , {fixed: 'right', title: '操作', align: 'center', toolbar: '#barDrug'}
+                ]]
+                , page: {layout: ['prev', 'page', 'next', 'count', 'skip']}
+                , cellMinWidth: 80
+
+                , height: 500
+                //,width:1050
+                , done: function (res, curr, count) {
+                    // console.log(curr);
+                    table_curr = curr;
+                }
+            });
+            layer.closeAll('loading');
+        }, 500);
+
+        /**
+         * 表格重载方法封装
+         * @param args 异步请求的额外参数
+         * @param curr
+         */
+        function tableReload(args, curr) {
+            table.reload('drug', {
+                url: '/list.drug'
+                , where: args
+                , page: {
+                    page: curr
+                }
+            });
+        }
+
+        /**
+         * 监听table工具栏事件：
+         * 编辑商品
+         * 删除商品
+         */
+        table.on('tool(drugTable)', function (obj) {
+            var data = obj.data;
+            var layEvent = obj.event;
+
+            if (layEvent === 'edit') {
+                var tpl = $('#add-form-html').html();
+                var nowTpl = null;
+                data = JSON.parse(JSON.stringify(data));
+                layui.laytpl(tpl).render(data, function (html) {
+                    nowTpl = html;
+                });
+                layer.open({
+                    type: 1,
+                    title: '修改商品',
+                    closeBtn: 1,
+                    shadeClose: true,
+                    content: nowTpl,
+                    area: '800px',
+                    btn: ['确定', '取消'],
+                    yes: function (index, layero) {
+                        //确定按钮的回调
+                        var formElem = layero.find('form');
+                        $('#add-form').append('<a class="layui-btn layui-hide" lay-submit="" lay-filter="updateDrug"></a>');
+                        nowIndex = index;
+                        formElem.find('a[lay-submit]').click();
+                    },
+                    success: function (layero, index) {
+                        var select;
+                        $.ajax('/selectTypeNameAndId.medicineType', {
+                            type: 'post',
+                            success: function (data) {
+                                var nowTemp = eval(obj.data).type;
+                                var formElem = layero.find('select');
+                                $.each(data, function (index, obj) {
+                                    if (nowTemp == obj.id) {
+                                        formElem.append('<option value="' + obj.id + '" selected="selected">' + obj.name + '</option>');
+                                    } else {
+                                        formElem.append('<option value="' + obj.id + '">' + obj.name + '</option>');
+                                    }
+                                })
+                                form.render();
+                                laydate.render({
+                                    elem: '#dateChoose'
+                                });
+                            }
+                        });
+                    }
+                });
+
+            } else if (layEvent === 'del') {
+                layer.confirm('确定删除该商品吗？', function (index) {
+                    layer.close(index);
+                    $.ajax("/delete.drug", {
+                        type: 'post',
+                        data: {
+                            medicineId: data.medicineId
+                        },
+                        success: function (data) {
+                            // debugger;
+                            //var json = JSON.parse(data);
+                            // alert(json.flag);
+                            var json;
+                            if(typeof  data == "string") json = JSON.parse(data);
+                            else json = data;
+                            if(json.code == 1) {
+                                layer.msg("无权限")
+                            }else {
+                                if (json.flag == 1) {
+                                    layer.msg("删除成功");
+                                    tableReload({},table_curr);
+                                } else {
+                                    layer.msg("删除失败")
+                                }
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            layer.msg('删除失败');
+                        }
+                    });
+                });
+            }
+        });
+
+        /**
+         * 编辑按钮事件
+         */
+        form.on('submit(updateDrug)', function (data) {
+            $.ajax("/update.drug", {
+                type: 'post',
+                data: {
+                    data: JSON.stringify(data.field)
+                },
+                success: function (data) {
+                    // var json = JSON.parse(data);
+                    var json;
+                    if(typeof  data == "string") json = JSON.parse(data);
+                    else json = data;
+                    if(json.code == 1) {
+                        layer.msg("无权限")
+                    }else {
+                        if (json.flag == 1) {
+                            //表格重载
+                            tableReload({}, table_curr);
+                            layer.msg("更新成功");
+                        } else {
+                            layer.msg("更新失败")
+                        }
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    if (XMLHttpRequest.status == 500) layer.msg("无权限");
+                    else layer.msg('更新失败');
+                }
+            });
+            layer.close(nowIndex);
+        });
+
+        /**
+         * 添加用户事件
+         */
+        form.on('submit(addDrug)', function (data) {
+            $.ajax("/add.drug", {
+                type: 'post',
+                data: {
+                    data: JSON.stringify(data.field)
+                },
+                success: function (data) {
+                    // var json = JSON.parse(data);
+                    var json;
+                    if(typeof  data == "string") json = JSON.parse(data);
+                    else json = data;
+                    if(json.code == 1) {
+                        layer.msg("无权限")
+                    }else {
+                        if (json.flag == 1) {
+                            tableReload({}, table_curr);
+                            layer.msg("增加成功");
+                        } else {
+                            layer.msg("增加失败")
+                        }
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    if (XMLHttpRequest.status == 500) layer.msg("无权限");
+                    else layer.msg('增加失败');
+                }
+            });
+            layer.close(nowIndex);
+        });
+
+        form.on('submit(drugSearch)', function (data) {
+            tableReload({condition: data.field.condition}, 1);
+        });
+
+        form.verify({
+            mName: function(value){
+                if(value.length < 5){
+                    return '标题至少得5个字符啊';
+                }else if(value.length > 40) {
+                    return '标题不能超过40个字符';
+                }
+            },
+            numberTwo:function (value) {
+                if(value<=0) {
+                    return '请输入正确的数字';
+                }else if(value.length>=8) {
+                    return '请输入正确的数字';
+                }
+            }
+        });
+
+        /**
+         *左侧添加和删除按钮的回调事件监听
+         */
+        $('#btn-event .layui-btn').on('click', function () {
+            var othis = $(this), type = othis.data('type');
+            active[type] ? active[type].call(this, othis) : '';
+        });
+
+        var active = {
+            add: function () {
+                var nowTpl = "";
+                var tpl = $('#add-form-html').html();
+                layui.laytpl(tpl).render("{}", function (html) {
+                    nowTpl = html;
+                });
+                layer.open({
+                    type: 1,
+                    title: '入库商品',
+                    closeBtn: 1,
+                    shadeClose: true,
+                    content: nowTpl,
+                    area: '800px',
+                    btn: ['确定', '取消'],
+                    yes: function (index, layero) {
+                        //确定按钮的回调
+                        var formElem = layero.find('form');
+                        nowIndex = index;
+                        $('#add-form').append('<a class="layui-btn layui-hide" lay-submit="" lay-filter="addDrug"></a>');
+                        formElem.find('a[lay-submit]').click();
+                    },
+                    success: function (layero, index) {
+                        $.ajax('/selectTypeNameAndId.medicineType', {
+                            type: 'post',
+                            success: function (data) {
+                                var formElem = layero.find('select');
+                                $.each(data, function (index, obj) {
+                                    // console.log(obj.name);
+                                    formElem.append('<option value="' + obj.id + '">' + obj.name + '</option>');
+                                    // console.log(formElem);
+                                })
+                                form.render();
+                                laydate.render({
+                                    elem: '#dateChoose'
+                                });
+                            }
+                        });
+                    }
+                });
+            },
+            batchdel: function () {
+                var checkStatus = table.checkStatus('drug')
+                    ,data = checkStatus.data;
+                layer.confirm('确定删除所有勾选的商品吗?', function (index) {
+                    layer.close(index);
+                    var flag = true;
+
+                    for(var i=0; i<data.length;i++){
+                        if(!flag) break;
+                        $.ajax("/delete.drug",{
+                            type: 'post',
+                            data: {
+                                medicineId: data[i].medicineId
+                            },
+                            success: function (data) {
+                                // var json = JSON.parse(data);
+                                var json;
+                                if(typeof  data == "string") json = JSON.parse(data);
+                                else json = data;
+                                debugger;
+                                if(json.code == 1) {
+                                    layer.msg("无权限")
+                                    flag = false;
+                                }else {
+                                    if (json.flag != 1) {
+                                        flag = false;
+                                    }else {
+                                        tableReload({}, table_curr);
+                                    }
+                                }
+                            }
+                        })
+                    }
+                });
+            }
+        };
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>商品管理</title>
+    <link rel="stylesheet" href="../layui/css/layui.css">
+    <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+<form class="layui-form layui-form-pane" action="">
+    <div class="layui-form-item" style="margin:0 auto;width:300px;">
+        <div class="layui-input-inline">
+            <!--查询输入框-->
+            <input type="text" name="condition" lay-verify="drugCondition" placeholder="查询商品" autocomplete="off"
+                   class="layui-input">
+        </div>
+        <!--查询按钮-->
+        <a class="layui-btn" lay-submit="" lay-filter="drugSearch">查询</a>
+    </div>
+</form>
+<div id="btn-event" class="layui-input-inline">
+    <!--左侧添加、删除按钮-->
+    <button class="layui-btn layui-btn-disabled">删除</button>
+    <button class="layui-btn layui-btn-disabled">添加</button>
+</div>
+    <script type="text/html" id="add-form-html">
+        <form class="layui-form" action="" id="add-form" lay-filter="save-form">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">商品编号</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="medicineGB" lay-verify="required" autocomplete="off"
+                               class="layui-input" readonly>
+                        <input type="hidden" name="medicineId" lay-verify="required" autocomplete="off"
+                               class="layui-input" readonly>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">商品名称</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="medicineName" lay-verify="required" autocomplete="off"
+                               class="layui-input" readonly>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">商品单价</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="medicinePrice" lay-verify="required" autocomplete="off"
+                               class="layui-input" readonly>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">所属类别</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="typeName" lay-verify="" autocomplete="off" class="layui-input"
+                               readonly>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">生产日期</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="medicinePD" lay-verify="" autocomplete="off" class="layui-input"
+                               readonly>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">生产产商</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="medicineFirm" lay-verify="" autocomplete="off" class="layui-input"
+                               readonly>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">商品数量</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="medicineStockNumber" lay-verify="required" autocomplete="off"
+                               class="layui-input" readonly>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">出库数量</label>
+                    <div class="layui-input-inline">
+                        <input type="number" name="saleNumber" lay-verify="required" autocomplete="off"
+                               class="layui-input"
+                               placeholder="输入出库数量"
+                                >
+                    </div>
+                </div>
+            </div>
+        </form>
+    </script>
+
+<div >
+    <table id="drugTable" lay-filter="test"></table>
+
+</div>
+<script type="text/html" id="itemAction">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">出库商品</a>
+</script>
+
+<script src="../layui/layui.js"></script>
+<script>
+    layui.use(['table', 'layer', 'form', 'laydate'], function () {
+        var table = layui.table;
+        var layer = layui.layer;
+        var $ = layui.jquery;
+        var form = layui.form;
+        var laydate = layui.laydate;
+        layer.load(2);
+
+        //左侧添加和删除按钮的回调事件监听
+        $('#btn-event .layui-btn').on('click', function () {
+            var othis = $(this), type = othis.data('type');
+            active[type] ? active[type].call(this, othis) : '';
+        });
+
+
+        setTimeout(function(){
+            table.render({
+                elem: '#drugTable',
+                url: '/list.order',
+                cols: [[ //表头
+                    {type: 'checkbox', fixed: 'left'}
+                    ,{field: 'medicineId', align: 'center',title: '商品ID', sort: true}
+                    , {field: 'medicineGB', align: 'center',title: '商品编号'}
+                    , {field: 'medicineName', align: 'center',title: '商品名字'}
+                    , {field: 'medicinePrice', align: 'center',title: '商品单价'}
+                    , {field: 'medicineStockNumber', align: 'center',title: '商品商品'}
+                    , {field: 'medicinePD', align: 'center',title: '商品生产日期'}
+                    , {field: 'medicineFirm',align: 'center', title: '商品厂商'}
+                    , {field: 'typeName', align: 'center',title: '商品类别'}
+                    , {fixed: 'right', title: '操作', toolbar: '#itemAction'}
+                ]],
+                page: true,
+                height: 500
+                ,done: function () {
+
+                }
+            });
+            layer.closeAll('loading');
+        }, 500);
+
+        table.on('tool(test)', function (obj) { //注：tool是工具条事件名，test是table原始容器的属性 lay-filter="对应的值"
+            var data = obj.data; //获得当前行数据
+            var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+            var tr = obj.tr; //获得当前行 tr 的DOM对象
+
+            // 加入订单
+            if (layEvent === 'edit') {
+                layer.prompt({
+                    title: '商品出库',
+                    closeBtn: 1,
+                    area: '800px',
+                    content: $('#add-form-html').html(),
+                    btn: ['确定出库', '取消'],
+                    success: function (layero, index) {
+                        //查询用户数据给表单赋初始值
+                        $.ajax("/get.order", {
+                            type: 'post',
+                            data: {
+                                id: data.medicineId
+                            },
+                            success: function (data) {
+                                form.val("save-form", data)
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                layer.msg('查询失败');
+                            }
+                        });
+                        console.log(layero, index);
+                    },
+                    yes: function (index, layero) {
+                        $.ajax('/buy.order', {
+                            type: 'post',
+                            data: $("#add-form").serialize(),
+                            success: function (data) {
+                                if (data.state == 1) {
+                                    tableReload({}, 1);
+                                    layer.msg(data.msg);
+                                    layer.close(index);
+                                } else if (data.state == 0) {
+                                    layer.msg(data.msg);
+                                }
+                                else {
+                                    layer.msg(data.msg);
+                                }
+                            },
+                            error: function (data) {
+                                layer.msg("出库失败");
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
+        function tableReload(args, curr) {
+            table.reload('drugTable', {
+                url: '/list.order'
+                , where: args
+                , page: {
+                    curr: curr
+                }
+            });
+        }
+
+        /**
+         * 页面最上方的查询
+         */
+        form.on('submit(drugSearch)',function (data) {
+            tableReload({condition:data.field.condition},1);
+        });
+
+    });
+</script>
+</body>
+</html>
